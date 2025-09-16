@@ -9,7 +9,7 @@
 **Project 2 Pairings:**
 
 - **Pair 1:** Katarzyna + Paige
-- **Pair 2:** Hy + Aisling  
+- **Pair 2:** Hy + Aisling
 - **Triple:** Caleb + Kaitlyn + Nodoka
 
 **Individual Implementation Requirements:**
@@ -402,7 +402,7 @@ To ensure steady progress and avoid last-minute rushing, aim for these checkpoin
 ✓ All plots generated  
 ✓ Both memos written
 
-### Monday (Due Date)
+### Wednesday (Due Date)
 ✓ Final code review and cleanup  
 ✓ Verify all deliverables complete  
 ✓ Submit by 11:59 PM
@@ -490,6 +490,7 @@ Reflect on your learning process:
 - Code should be executable with clear installation instructions
 
 ## Appendix: Example Class Structure
+*(See course materials)*
 
 ## Appendix: Example Code Structure
 Here's a skeleton of how you might begin to structure your N-body integrator class. You will need to fill in the methods with the appropriate logic for force calculation, integration steps, and energy computation.

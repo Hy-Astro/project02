@@ -252,12 +252,16 @@ This initialization produces a system with virial ratio $Q \approx 0$ (equilibri
 - **Segment counts**: fraction below/above $0.5\,M_\odot$ matches analytic expectations within sampling error.
 - **Slope recovery**: fit a line to log-binned $dN/d\log m$ in each segment; slopes $\approx \{-\alpha_1, -\alpha_2\}$.
 - **Mean mass**: compare sample mean $\langle m\rangle$ to the analytic mean
-$$\langle m\rangle = \frac{\int m\,\xi(m)\,dm}{\int \xi(m)\,dm}\,$$ computed analytically using the closed-form integrals for each power-law segment
+$$
+\langle m\rangle = \frac{\int m\,\xi(m)\,dm}{\int \xi(m)\,dm}\,
+$$ computed analytically using the closed-form integrals for each power-law segment
 
 ### 5.2 Plummer checks
 
 - **CDF check**: verify that $u_i = r_i/\sqrt{r_i^2+a^2}$ raised to $3$ matches $\mathcal U(0,1)$. Equivalently, verify that
-$$\frac{r_i^3}{(r_i^2+a^2)^{3/2}}$$ is uniform.
+$$
+\frac{r_i^3}{(r_i^2+a^2)^{3/2}}
+$$ is uniform.
 - **Shell counts**: number density in spherical shells: $n \propto (1+r^2/a^2)^{-5/2}$.
 - **Half-mass radius**: compute $r_{1/2,\rm sample}$ and compare to target.
 
