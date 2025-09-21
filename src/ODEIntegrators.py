@@ -1,5 +1,6 @@
 """
-ODE integrator class to compute N-body gravitational dynamics
+ODE integrator class to calculate numerical steps in physical simulations
+Currently supports interaction by gravity
 """
 
 import numpy as np
@@ -13,8 +14,8 @@ class ODEIntegrator:
         """
         Parameters
         ----------
-        masses : array-like
-            Object mass in solar masses (M_sun)
+        masses : (N, ) array
+            Object masses in solar masses (M_sun)
         epsilon : float
             Softening parameter in astronomical units (AU)
         """
