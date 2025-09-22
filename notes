@@ -1,0 +1,6 @@
+For bad plots, 
+    1. epsilon=1 yielded really bad trajectory for earth-sun
+    2. run the earth-jupiter-sun system for 200x jupiter's revolution, graphs unreadable
+
+For AI explanations,
+    1. used ChatGPT for help with Plummer sphere - spherical coordinates and vector operations
