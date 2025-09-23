@@ -15,7 +15,9 @@ ClusterUnifMass_test()
 ClusterUnifMass_plot()
 
 Cluster_loop_test()
-Cluster_loop_plot()
+Cluster_loop_energy_plot()
+Cluster_loop_KroupaPlummer_plot()
+Cluster_loop_snapshots()
 
 Cluster_vecs_test()
 Cluster_vecs_plot()
@@ -255,8 +257,7 @@ def EarthSun_plot(years=10, dt=0.01, savefig=False):
 
     ax.set_yscale('log')
     ax.set_title("Relative Energy Errors vs. Time")
-    ax.set_xlabel(r"$t\ \rm [yr]$")
-    ax.set_ylabel(r"$\Delta E\,/\,|E_0|$")
+    ax.set_xlabel(r"$t\ \rm [yr]$"); ax.set_ylabel(r"$\Delta E\,/\,|E_0|$")
     ax.legend(loc=1)
 
     # Bottom right: virial ratios overtime
@@ -416,8 +417,7 @@ def EarthJupiterSun_plot(years=24, dt=0.01, savefig=False):
 
     ax.set_yscale('log')
     ax.set_title("Relative Energy Errors vs. Time")
-    ax.set_xlabel(r"$t\ \rm [yr]$")
-    ax.set_ylabel(r"$\Delta E\,/\,|E_0|$")
+    ax.set_xlabel(r"$t\ \rm [yr]$"); ax.set_ylabel(r"$\Delta E\,/\,|E_0|$")
     ax.legend(loc=1)
 
     # Bottom right: virial ratios overtime
@@ -430,8 +430,7 @@ def EarthJupiterSun_plot(years=24, dt=0.01, savefig=False):
                 color=colors[method], linestyle=linestyles[method])
 
     ax.set_title("Virial Ratios vs. Time")
-    ax.set_xlabel(r"$t\ \rm [yr]$")
-    ax.set_ylabel("$Q$")
+    ax.set_xlabel(r"$t\ \rm [yr]$"); ax.set_ylabel("$Q$")
     ax.legend(loc=1)
 
     fig.suptitle(
@@ -535,7 +534,7 @@ def ClusterUnifMass_plot(N=10, R=100.0, years=100, dt=0.01, savefig=False):
         results[method] = {'energies': energies}
 
     fig, axes = plt.subplots(3, 1, figsize=(10, 12), constrained_layout=True)
-    interval = results['rk4']['energies'].shape[0]
+    interval = results['rk4']['energies'].shape[0] # years/Δt, rounded
     times = np.linspace(0, years, interval)
 
     # Top: energy components overtime
@@ -555,7 +554,7 @@ def ClusterUnifMass_plot(N=10, R=100.0, years=100, dt=0.01, savefig=False):
     ax.set_ylabel(r"$E\ \rm [M_\odot\,AU^2/yr^2]$")
     ax.legend(loc=1)
 
-    # Middle: relative energy errors overtime
+    # Center: relative energy errors overtime
     ax = axes[1]
     for method in methods:
         energies = results[method]['energies']
@@ -566,8 +565,7 @@ def ClusterUnifMass_plot(N=10, R=100.0, years=100, dt=0.01, savefig=False):
                 color=colors[method], linestyle=linestyles[method])
     ax.set_yscale('log')
     ax.set_title("Relative Energy Errors vs. Time")
-    ax.set_xlabel(r"$t\ \rm [yr]$")
-    ax.set_ylabel(r"$\Delta E\,/\,|E_0|$")
+    ax.set_xlabel(r"$t\ \rm [yr]$"); ax.set_ylabel(r"$\Delta E\,/\,|E_0|$")
     ax.legend(loc=1)
 
     # Bottom: virial ratios overtime
@@ -579,15 +577,15 @@ def ClusterUnifMass_plot(N=10, R=100.0, years=100, dt=0.01, savefig=False):
         ax.plot(times, Q, label=method,
                 color=colors[method], linestyle=linestyles[method])
     ax.set_title("Virial Ratios vs. Time")
-    ax.set_xlabel(r"$t\ \rm [yr]$")
-    ax.set_ylabel("$Q$")
+    ax.set_xlabel(r"$t\ \rm [yr]$"); ax.set_ylabel("$Q$")
     ax.legend(loc=1)
 
     fig.suptitle(
-        f"Results for the {N}-Body Cluster over a {years}-Year Period",
+        f"Energy Results for the Simple Stellar Cluster ({N}-Body)\n"
+        f"Over a {years}-Year Period",
         fontsize=15, weight='bold'
     )
-    if savefig: plt.savefig("ClusterUnifMass_plot.png")
+    if savefig: plt.savefig("Cluster_loop_plot.png")
     plt.show()
 
 def Cluster_loop_test(N=100, a=1000, years=1000, dt=0.01, method='leapfrog'):
@@ -700,3 +698,230 @@ def Cluster_loop_test(N=100, a=1000, years=1000, dt=0.01, method='leapfrog'):
 
     # Return position and energies of every star calculated at each step
     return np.array(all_positions), np.array(energies)
+
+def Cluster_loop_energies_plot(N=100, a=1000, years=1000, dt=0.01, savefig=False):
+    """
+    Figure of 3 plots describing simulation results of improved N-body cluster
+    For more information, see parent function `Cluster_loop_test()`
+    Only Leapfrog integration method used due to strong energy conservation
+
+    Parameters
+    ----------
+    N       : int, optional
+        Number of stars (default: 100)
+    a       : float, optional
+        Plummer radius in AU (default: 1000)
+    years   : float, optional
+        Simulation duration in years (default: 100)
+    dt      : float, optional
+        Time step (Δt) in years (default: 0.01)
+    savefig : bool, optional
+        Save figure as PNG (default: False)
+    """
+
+    # Acquire simulation results once
+    _, energies = Cluster_loop_test(N=N, a=a,
+                                    years=years, dt=dt, method="leapfrog")
+    KE, PE, TE = energies[:, 0], energies[:, 1], energies[:, 2]
+
+    fig, axes = plt.subplots(3, 1, figsize=(10, 12), constrained_layout=True)
+    interval = energies.shape[0] # years/Δt, rounded
+    times = np.linspace(0, years, interval)
+
+    # Top: energy components overtime
+    ax = axes[0]
+    ax.plot(times, KE, label=r"$E_{\rm K}$", linestyle="--", alpha=0.6)
+    ax.plot(times, PE, label="$W$", linestyle=":", alpha=0.6)
+    ax.plot(times, TE, label=r"$E_{\rm tot}$", linewidth=1.8, alpha=1.0)
+    ax.set_title("Energy Components vs. Time")
+    ax.set_xlabel(r"$t\ \rm [yr]$")
+    ax.set_ylabel(r"$E\ \rm [M_\odot\,AU^2/yr^2]$")
+    ax.legend(loc=1)
+
+    # Center: relative energy errors overtime
+    ax = axes[1]
+    Etrue = TE[0] # energy of system at t=0
+    rel_err = np.abs(TE - Etrue) / abs(Etrue)
+    ax.plot(times, rel_err)
+    ax.set_yscale('log')
+    ax.set_title("Relative Energy Errors vs. Time")
+    ax.set_xlabel(r"$t\ \rm [yr]$"); ax.set_ylabel(r"$\Delta E\,/\,|E_0|$")
+
+    # Bottom: virial ratios overtime
+    ax = axes[2]
+    Q = np.abs(2*KE + PE) / np.abs(PE)
+    ax.plot(times, Q)
+    ax.set_title("Virial Ratios vs. Time")
+    ax.set_xlabel(r"$t\ \rm [yr]$"); ax.set_ylabel("$Q$")
+
+    fig.suptitle(
+        f"Energy Results for the Improved Stellar Cluster ({N}-Body)\n"
+        f"Over a {years}-Year Period",
+        fontsize=15, weight='bold'
+    )
+    if savefig:plt.savefig("Cluster_loop_energies.png")
+    plt.show()
+
+def Cluster_loop_KroupaPlummer_plot(N=100, a=1000, savefig=False):
+    """
+    Figure of 2 plots validating initial conditions of improved N-body cluster:
+    - Sampled mass distribution vs. known Kroupa IMF
+    - Sampled radial density profile vs. known Plummer model
+    For more information, see parent function `Cluster_loop_test()`
+
+    Parameters
+    ----------
+    N       : int, optional
+        Number of stars (default: 100)
+    a       : float, optional
+        Plummer radius in AU (default: 1000)
+    savefig : bool, optional
+        Save figure as PNG (default: False)
+    """
+
+    ### Re-sample initial cluster once: copied code from `Cluster_loop_test()` ###
+    def sample_powerlaw(alpha, a, b, n_stars):
+        u = np.random.uniform(1e-12, 1 - 1e-12, size=n_stars)
+        return (a**(1-alpha) + u * (b**(1-alpha) - a**(1-alpha)))**(1/(1-alpha))
+    m_min, m_break, m_max = 0.08, 0.5, 150.0
+    alpha1, alpha2 = 1.3, 2.3
+    I1 = (m_break**(1-alpha1) - m_min**(1-alpha1)) / (1-alpha1)
+    I2 = (m_max**(1-alpha2) - m_break**(1-alpha2)) / (1-alpha2)
+    A1 = N / (I1 + m_break**(alpha2-alpha1) * I2)
+    A2 = A1 * m_break**(alpha2 - alpha1)
+    P1 = (A1 * I1) / N
+    masses = []
+    for _ in range(N):
+        if np.random.rand() < P1:
+            masses.append(sample_powerlaw(alpha1, m_min, m_break, 1)[0])
+        else:
+            masses.append(sample_powerlaw(alpha2, m_break, m_max, 1)[0])
+    masses = np.array(masses)
+    u = np.random.uniform(1e-12, 1 - 1e-12, N)
+    r = a * (u**(-2/3) - 1)**(-0.5)
+    phi = 2 * np.pi * np.random.uniform(0, 1, N)
+    cos_theta = 1 - 2 * np.random.uniform(0, 1, N)
+    sin_theta = np.sqrt(1 - cos_theta**2)
+    x = r * sin_theta * np.cos(phi)
+    y = r * sin_theta * np.sin(phi)
+    z = r * cos_theta
+    positions = np.vstack((x, y, z)).T
+    r_cm = np.average(positions, axis=0, weights=masses)
+    positions -= r_cm
+    radii = np.linalg.norm(positions, axis=1)
+
+    ## Create figure ###
+    fig, axes = plt.subplots(2, 1, figsize=(8, 10), constrained_layout=True)
+
+    # Top: mass histogram and comparison
+    ax = axes[0]
+    counts, bins, _ = ax.hist(
+        masses, bins=np.logspace(np.log10(m_min), np.log10(m_max), 30),
+        histtype='bar', density=True, label="Stellar masses", color='c', alpha=0.6
+    )
+
+    m_line = np.logspace(np.log10(m_min), np.log10(m_max), 200) # Kroupa slopes
+    bin_centers = 0.5 * (bins[1:] + bins[:-1])
+    ref_density = np.interp(m_break, bin_centers, counts)
+    scale1 = ref_density * m_break**alpha1
+    scale2 = scale1 * m_break**(alpha2 - alpha1)
+    ax.plot(m_line[m_line < m_break],
+            scale1 * m_line[m_line < m_break]**(-alpha1),
+            'r--', lw=2, label=rf"$\alpha_1={alpha1}$")
+    ax.plot(m_line[m_line >= m_break],
+            scale2 * m_line[m_line >= m_break]**(-alpha2),
+            'g--', lw=2, label=rf"$\alpha_2={alpha2}$")
+
+    ax.set_xscale('log'); ax.set_yscale('log')
+    ax.set_title("Sampled Stellar Masses (Kroupa IMF)")
+    ax.set_xlabel(r"$M\ \rm [M_\odot]$"); ax.set_ylabel("Count")
+    ax.legend(loc=1)
+
+    # Bottom: radial density profile and comparison
+    ax = axes[1]
+    counts, bins = np.histogram(radii, bins=30)
+    shell_volumes = (4/3) * np.pi * (bins[1:]**3 - bins[:-1]**3)
+    density = counts / shell_volumes
+    bin_centers = (bins[1:] + bins[:-1]) / 2
+    ax.loglog(bin_centers, density, 'o', label="Radial densities")
+
+    radii_model = np.logspace(np.log10(radii.min()), np.log10(radii.max()), 200)
+    Plummer_model = (1 + (radii_model/a)**2)**(-2.5) # Plummer profile
+    Plummer_model *= density.max() / Plummer_model.max() # normalization
+    ax.loglog(radii_model, Plummer_model, label="Plummer model")
+
+    ax.set_xlabel(r"$r\ \rm [AU]$")
+    ax.set_ylabel(r"$\rho\,\rm *\,constant\ [M_\odot/AU^3]$")
+    ax.set_title("Sampled Radial Density Profile (Plummer Model)")
+    ax.legend(loc=1)
+
+    fig.suptitle(
+          "Initial Conditions Validation for the Improved Stellar Cluster\n"
+        rf"With $N={N}\ \rm stars $ and $a={a}\ \rm AU$",
+        fontsize=15, weight='bold'
+    )
+    if savefig: plt.savefig("Cluster_loop_KroupaPlummer_plot.png")
+    plt.show()
+
+def Cluster_loop_snapshots(N=100, a=1000, years=1000, dt=0.01, savefig=False,
+                           milestones=[0.00, 0.25, 0.50, 0.75, 1.00]):
+    """
+    Figure of position snapshots during simulation of improved N-body cluster
+    For more information, see parent function `Cluster_loop_test()`
+
+    Parameters
+    ----------
+    N          : int, optional
+        Number of stars (default: 100)
+    a          : float, optional
+        Plummer radius in AU (default: 1000)
+    years      : float, optional
+        Simulation duration in years (default: 100)
+    dt         : float, optional
+        Time step (Δt) in years (default: 0.01)
+    savefig    : bool, optional
+        Save figure as PNG (default: False)
+    milestones : array of floats, optional
+        Fractions of total simulation duration
+        (default: [0.00, 0.25, 0.50, 0.75, 1.00])
+    """
+
+    # Input validation for milestones
+    milestones = np.sort(np.asarray(milestones))
+    if np.any(milestones < 0) or np.any(milestones > 1):
+        raise ValueError("Fractions must be between 0 and 1")
+
+    # Acquire simulation results once
+    positions, _ = Cluster_loop_test(N=N, a=a,
+                                     years=years, dt=dt, method='leapfrog')
+    intervals = positions.shape[0] # years/Δt, rounded
+    times = np.linspace(0, years, intervals)
+
+    # Configure figure to have 2 columns maximum
+    idxs = [int(m * (intervals - 1)) for m in milestones]
+    n_snapshots = len(idxs)
+    ncols = 2 if n_snapshots > 1 else 1
+    nrows = int(np.ceil(n_snapshots / ncols))
+
+    fig, axes = plt.subplots(nrows, ncols, figsize=(6*ncols, 6*nrows),
+                             tight_layout=True)
+    axes = np.atleast_1d(axes).flatten()
+
+    for k, (ax, idx, frac) in enumerate(zip(axes, idxs, milestones)):
+        pos = positions[idx]
+        ax.scatter(pos[:, 0], pos[:, 1], s=10, alpha=0.7)
+        ax.set_aspect('equal', 'box')
+        ax.set_title(rf"$t={times[idx]:.1f}\ \rm yr\ ({frac*100:.1f}\rm \%)$")
+        ax.set_xlabel(r"$x\ \rm [AU]$"); ax.set_ylabel(r"$y\ \rm [AU]$")
+
+    for j in range(k+1, len(axes)):
+        # Hide any unused subplots
+        axes[j].set_visible(False)
+
+    fig.suptitle(
+        f"Position Snapshots for the Improved Stellar Cluster ({N}-Body)\n"
+        f"Over a {years}-Year Period",
+        fontsize=15, weight='bold'
+    )
+    if savefig: plt.savefig("Cluster_loop_snapshots.png")
+    plt.show()

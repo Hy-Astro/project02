@@ -2,5 +2,15 @@ For bad plots,
     1. epsilon=1 yielded really bad trajectory for earth-sun
     2. run the earth-jupiter-sun system for 200x jupiter's revolution, graphs unreadable
 
-For AI explanations,
-    1. used ChatGPT for help with Plummer sphere - spherical coordinates and vector operations
+For ChatGPT-assisted explanations,
+    1. help with Plummer sphere - spherical coordinates and vector operations
+    2. help with writing repetitive, reusable functions (example: plot functions)
+
+For explanations on long time spent:
+    1. sometimes an idea pops up in my mind, such as having a flexible list of snapshot times
+        in a plotting function and then having to customize figure dimensions
+
+For confusion,
+    1. In NBody.py, I didn't know when to use classes vs functions.
+        When looking ahead, I opted for functions in order to optimize from loops to vectorization,
+        but this results in a large number of functions in the module with a ton of duplicate codes
